@@ -70,8 +70,8 @@ function doPost(e) {
   lockProcessByClientMsgId(client_msg_id);
 
   try {
-    const relayMessage = talkWithGPT(trimMention(text));
-    slackApp.chatPostMessage(postData.event.channel, relayMessage);
+    const replayMessage = talkWithGPT(trimMention(text));
+    slackApp.chatPostMessage(postData.event.channel, replayMessage);
   } catch (e) {
     slackApp.chatPostMessage(postData.event.channel, `ごめんなさい、エラーでお答えできませんでした。。。`);
     Logger.log(e);
