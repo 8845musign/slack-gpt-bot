@@ -1,6 +1,8 @@
 const OPEN_AI_KEY = PropertiesService.getScriptProperties().getProperty('OPEN_AI_KEY');
+const OPEN_AI_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 const SLACK_BOT_TOKEN = PropertiesService.getScriptProperties().getProperty('SLACK_BOT_TOKEN');
 const cache = CacheService.getScriptCache();
+
 
 if (OPEN_AI_KEY === null) {
   throw new Error('OPEN_AI_KEY is not set');
@@ -60,9 +62,41 @@ function doPost(e) {
 
   try {
     const mentinoReg = /<@.*?>/;
-    app.chatPostMessage(postData.event.channel, `${text.replace(mentinoReg, '')}と言われた`);
+    const relayMessage = talkWithGPT(text.replace(mentinoReg, ''));
+    app.chatPostMessage(postData.event.channel, relayMessage);
   } catch (e) {
+    app.chatPostMessage(postData.event.channel, `ごめんなさい、エラーでお答えできませんでした。。。`);
     Logger.log(e);
     unLockProcessByClientMsgId(client_msg_id);
   }
+}
+
+const talkWithGPT = (messages) => {
+  const requestBody = {
+    model: 'gpt-3.5-turbo',
+    messages: [{
+      role: 'user',
+      content: messages
+    }],
+    max_tokens: 1000,
+    temperature: 0.5
+  }
+
+  const res = UrlFetchApp.fetch(OPEN_AI_ENDPOINT, {
+    method: 'post',
+    headers: {
+      Authorization: `Bearer ${OPEN_AI_KEY}`,
+      Accept: 'application/json',
+    },
+    contentType: 'application/json',
+    payload: JSON.stringify(requestBody)
+  });
+
+  if (res.getResponseCode() !== 200) {
+    throw new Error(res.getContentText());
+  }
+
+  const replay = JSON.parse(res.getContentText());
+
+  return replay.choices[0].message.content;
 }

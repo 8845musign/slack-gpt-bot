@@ -4,7 +4,8 @@ module.exports = {
   },
   extends: [
     'standard',
-    'prettier'
+    'prettier',
+    "plugin:googleappsscript/recommended"
   ],
   overrides: [
   ],
