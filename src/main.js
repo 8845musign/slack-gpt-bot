@@ -1,4 +1,5 @@
 const OPEN_AI_KEY = PropertiesService.getScriptProperties().getProperty('OPEN_AI_KEY');
+const OPEN_AI_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 const SLACK_BOT_TOKEN = PropertiesService.getScriptProperties().getProperty('SLACK_BOT_TOKEN');
 const cache = CacheService.getScriptCache();
 
@@ -63,4 +64,8 @@ function doPost(e) {
     Logger.log(e);
     unLockProcessByClientMsgId(client_msg_id);
   }
+}
+
+const talkWithGPT = (message) => {
+
 }
