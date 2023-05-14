@@ -3,6 +3,10 @@ const OPEN_AI_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 const SLACK_BOT_TOKEN = PropertiesService.getScriptProperties().getProperty('SLACK_BOT_TOKEN');
 const cache = CacheService.getScriptCache();
 
+// slackへの応答用
+function ack() {
+  ContentService.createTextOutput('ok');
+}
 
 if (OPEN_AI_KEY === null) {
   throw new Error('OPEN_AI_KEY is not set');
@@ -55,7 +59,7 @@ function doPost(e) {
   const { text, client_msg_id } = postData.event;
 
   if (isProcessing(client_msg_id)) {
-    return;
+    return ack();
   }
 
   lockProcessByClientMsgId(client_msg_id);
@@ -69,6 +73,8 @@ function doPost(e) {
     Logger.log(e);
     unLockProcessByClientMsgId(client_msg_id);
   }
+
+  return ack();
 }
 
 const talkWithGPT = (messages) => {
