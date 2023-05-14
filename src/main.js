@@ -16,7 +16,7 @@ if (SLACK_BOT_TOKEN === null) {
   throw new Error('SLACK_BOT_TOKEN is not set');
 }
 // eslint-disable-next-line no-undef
-const app = SlackApp.create(SLACK_BOT_TOKEN);
+const slackApp = SlackApp.create(SLACK_BOT_TOKEN);
 
 function lockProcessByClientMsgId(clientMsgId) {
   // clientMsgIdをキャッシュに追加
@@ -71,9 +71,9 @@ function doPost(e) {
 
   try {
     const relayMessage = talkWithGPT(trimMention(text));
-    app.chatPostMessage(postData.event.channel, relayMessage);
+    slackApp.chatPostMessage(postData.event.channel, relayMessage);
   } catch (e) {
-    app.chatPostMessage(postData.event.channel, `ごめんなさい、エラーでお答えできませんでした。。。`);
+    slackApp.chatPostMessage(postData.event.channel, `ごめんなさい、エラーでお答えできませんでした。。。`);
     Logger.log(e);
   }
 
