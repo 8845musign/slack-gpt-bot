@@ -33,6 +33,11 @@ function unLockProcessByClientMsgId(clientMsgId) {
   Logger.log(`unlock: ${clientMsgId}`);
 }
 
+function trimMention(message) {
+  const mentinoReg = /<@.*?>/;
+  return message.replace(mentinoReg, '').trim();
+}
+
 // eslint-disable-next-line no-unused-vars
 function doPost(e) {
   Logger.log('-------- run --------');
@@ -65,19 +70,21 @@ function doPost(e) {
   lockProcessByClientMsgId(client_msg_id);
 
   try {
-    const mentinoReg = /<@.*?>/;
-    const relayMessage = talkWithGPT(text.replace(mentinoReg, ''));
+    const relayMessage = talkWithGPT(trimMention(text));
     app.chatPostMessage(postData.event.channel, relayMessage);
   } catch (e) {
     app.chatPostMessage(postData.event.channel, `ごめんなさい、エラーでお答えできませんでした。。。`);
     Logger.log(e);
-    unLockProcessByClientMsgId(client_msg_id);
   }
+
+  unLockProcessByClientMsgId(client_msg_id);
 
   return ack();
 }
 
 const talkWithGPT = (messages) => {
+  Logger.log('message: %s', messages);
+
   const requestBody = {
     model: 'gpt-3.5-turbo',
     messages: [{
