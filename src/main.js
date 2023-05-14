@@ -69,6 +69,8 @@ function doPost(e) {
 
   lockProcessByClientMsgId(client_msg_id);
 
+  slackApp.chatPostMessage(postData.event.channel, '考え中……');
+
   try {
     const replayMessage = talkWithGPT(trimMention(text));
     slackApp.chatPostMessage(postData.event.channel, replayMessage);
