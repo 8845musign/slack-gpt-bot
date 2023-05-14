@@ -1,5 +1,4 @@
 const OPEN_AI_KEY = PropertiesService.getScriptProperties().getProperty('OPEN_AI_KEY');
-const OPEN_AI_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 const SLACK_BOT_TOKEN = PropertiesService.getScriptProperties().getProperty('SLACK_BOT_TOKEN');
 const cache = CacheService.getScriptCache();
 
@@ -10,24 +9,25 @@ if (OPEN_AI_KEY === null) {
 if (SLACK_BOT_TOKEN === null) {
   throw new Error('SLACK_BOT_TOKEN is not set');
 }
-
+// eslint-disable-next-line no-undef
 const app = SlackApp.create(SLACK_BOT_TOKEN);
 
-function lockProcessByClientMsgId(client_msg_id) {
-  // client_msg_idをキャッシュに追加
-  cache.put(`process_${client_msg_id}`, client_msg_id, 60 * 5);
-  Logger.log(`lock: ${client_msg_id}`);
+function lockProcessByClientMsgId(clientMsgId) {
+  // clientMsgIdをキャッシュに追加
+  cache.put(`process_${clientMsgId}`, clientMsgId, 60 * 5);
+  Logger.log(`lock: ${clientMsgId}`);
 }
 
-function isProcessing(client_msg_id) {
-  return cache.get(`process_${client_msg_id}`) !== null;
+function isProcessing(clientMsgId) {
+  return cache.get(`process_${clientMsgId}`) !== null;
 }
 
-function unLockProcessByClientMsgId(client_msg_id) {
-  cache.remove(`process_${client_msg_id}`);
-  Logger.log(`unlock: ${client_msg_id}`);
+function unLockProcessByClientMsgId(clientMsgId) {
+  cache.remove(`process_${clientMsgId}`);
+  Logger.log(`unlock: ${clientMsgId}`);
 }
 
+// eslint-disable-next-line no-unused-vars
 function doPost(e) {
   Logger.log('-------- run --------');
 
@@ -41,14 +41,15 @@ function doPost(e) {
 
   // url_verification
   try {
-    if (postData.type == "url_verification") {
-      return ContentService.createTextOutput(json.challenge);
+    if (postData.type === "url_verification") {
+      return ContentService.createTextOutput(postData.challenge);
     }
   }
   catch (e) {
     Logger.log(e);
   }
 
+  // eslint-disable-next-line camelcase
   const { text, client_msg_id } = postData.event;
 
   if (isProcessing(client_msg_id)) {
@@ -64,8 +65,4 @@ function doPost(e) {
     Logger.log(e);
     unLockProcessByClientMsgId(client_msg_id);
   }
-}
-
-const talkWithGPT = (message) => {
-
 }
